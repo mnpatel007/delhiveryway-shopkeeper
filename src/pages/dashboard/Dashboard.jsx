@@ -50,10 +50,7 @@ const Dashboard = () => {
       ) : (
         <div className="space-y-8">
           <section>
-            <div className="flex justify-between items-end mb-6">
-              <h2 className="text-xl font-bold">Performance Last Month ({stats?.month})</h2>
-              <span className="text-[10px] text-gray-400 font-mono mb-1">SHOP ID: {stats?.shopId || 'Connecting...'}</span>
-            </div>
+            <h2 className="text-xl font-bold mb-6">Performance Last Month ({stats?.month})</h2>
             <div className="stats-grid">
               <div className="card stat-card">
                 <div className="stat-value">{stats?.totalOrders}</div>
