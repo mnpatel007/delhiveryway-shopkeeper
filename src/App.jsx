@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext';
 // Pages
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
+import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import Dashboard from './pages/dashboard/Dashboard';
 import ConsentPage from './pages/consent/ConsentPage';
 import TimingSettings from './pages/settings/TimingSettings';
@@ -30,6 +31,7 @@ function App() {
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
 
         {/* Private Routes */}
         <Route path="/consent" element={
