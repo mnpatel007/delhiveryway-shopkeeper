@@ -67,7 +67,8 @@ const Dashboard = () => {
               </div>
               <div className="card stat-card premium-gradient-card shadow-lg hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300">
                 <div className="stat-value">₹{(stats?.payableAmount || 0).toLocaleString()}</div>
-                <div className="stat-label">Final Payable</div>
+                <div className="stat-label text-primary-100">Net Earnings</div>
+                <div className="text-xs text-white font-medium mt-2 bg-white/20 inline-block px-2 py-1 rounded-md">Amount in your bank</div>
               </div>
             </div>
           </section>

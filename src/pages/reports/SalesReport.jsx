@@ -25,71 +25,84 @@ const SalesReport = () => {
     fetchData();
   }, []);
 
-  if (loading) return <Layout><div className="spinner"></div></Layout>;
+  if (loading) return <Layout><div className="flex justify-center p-20"><div className="spinner"></div></div></Layout>;
 
   return (
     <Layout>
       <div className="space-y-8">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">Monthly Sales Report - {stats?.month}</h2>
-          <button onClick={() => window.print()} className="btn btn-secondary btn-sm">
-            🖨️ Print Report
+        <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Monthly Sales Report</h2>
+            <p className="text-gray-500 font-medium text-sm mt-1">{stats?.month || 'Current Month'}</p>
+          </div>
+          <button onClick={() => window.print()} className="btn btn-secondary shadow-sm hover:shadow-md transition-all">
+            <span className="mr-2">🖨️</span> Print Report
           </button>
         </div>
 
-        <div className="stats-grid">
-          <div className="card stat-card bg-white">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="card stat-card hover:translate-y-[-4px] transition-all duration-300">
+            <div className="stat-value text-gray-800">₹{(stats?.grossSales || 0).toLocaleString()}</div>
             <div className="stat-label">Gross Revenue</div>
-            <div className="stat-value">₹{stats?.grossSales?.toLocaleString()}</div>
-            <div className="text-xs text-gray-400 mt-2">Total item sales before deductions</div>
+            <div className="text-xs text-gray-500 font-medium mt-2">Total item sales before deductions</div>
           </div>
-          <div className="card stat-card bg-white">
+          <div className="card stat-card hover:translate-y-[-4px] transition-all duration-300">
+            <div className="stat-value text-red-500">-₹{(stats?.commissionDeducted || 0).toLocaleString()}</div>
             <div className="stat-label">Platform Fees</div>
-            <div className="stat-value text-red-500">₹{stats?.commissionDeducted?.toLocaleString()}</div>
-            <div className="text-xs text-gray-400 mt-2">Commission & platform service charges</div>
+            <div className="text-xs text-gray-500 font-medium mt-2">Commission due to platform</div>
           </div>
-          <div className="card stat-card bg-white">
-            <div className="stat-label">Net Payable</div>
-            <div className="stat-value text-green-600">₹{stats?.payableAmount?.toLocaleString()}</div>
-            <div className="text-xs text-gray-400 mt-2">Amount to be settled to your bank</div>
+          <div className="card stat-card premium-gradient-card shadow-lg hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300">
+            <div className="stat-value">₹{(stats?.payableAmount || 0).toLocaleString()}</div>
+            <div className="stat-label text-primary-100">Net Earnings</div>
+            <div className="text-xs text-white font-medium mt-2 bg-white/20 inline-block px-2 py-1 rounded-md">Amount in your bank</div>
           </div>
         </div>
 
-        <div className="card">
-          <h3 className="font-bold mb-6">Recent Orders Breakdown</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+        <div className="card border-t-4 border-t-primary-500">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">Recent Orders Breakdown</h3>
+            <span className="bg-primary-50 text-primary-700 text-xs font-bold px-3 py-1 rounded-full">{orders.length} Orders</span>
+          </div>
+          
+          <div className="overflow-x-auto rounded-lg border border-gray-100">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-gray-100 text-gray-500 text-sm">
-                  <th className="pb-4 font-semibold">Order ID</th>
-                  <th className="pb-4 font-semibold">Date</th>
-                  <th className="pb-4 font-semibold">Customer</th>
-                  <th className="pb-4 font-semibold">Status</th>
-                  <th className="pb-4 font-semibold text-right">Amount</th>
+                <tr className="bg-gray-50 border-b border-gray-200 text-gray-600 text-xs uppercase tracking-wider">
+                  <th className="p-4 font-bold rounded-tl-lg">Order ID</th>
+                  <th className="p-4 font-bold">Date</th>
+                  <th className="p-4 font-bold">Customer</th>
+                  <th className="p-4 font-bold">Status</th>
+                  <th className="p-4 font-bold text-right rounded-tr-lg">Amount</th>
                 </tr>
               </thead>
-              <tbody className="text-sm">
+              <tbody className="text-sm bg-white divide-y divide-gray-100">
                 {orders.slice(0, 10).map((order) => (
-                  <tr key={order._id} className="border-b border-gray-50 last:border-0">
-                    <td className="py-4 font-mono text-xs">{order.orderNumber}</td>
-                    <td className="py-4 text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
-                    <td className="py-4 text-gray-900 font-medium">{order.customerId?.name || 'Guest'}</td>
-                    <td className="py-4">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                        order.status === 'delivered' ? 'bg-green-100 text-green-600' : 
-                        order.status === 'cancelled' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
+                  <tr key={order._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="p-4 font-mono text-xs text-gray-500">{order.orderNumber}</td>
+                    <td className="p-4 text-gray-700 font-medium">{new Date(order.createdAt).toLocaleDateString()}</td>
+                    <td className="p-4 text-gray-900 font-semibold">{order.customerId?.name || 'Guest'}</td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1 ${
+                        order.status === 'delivered' ? 'bg-green-50 text-green-700 border border-green-200' : 
+                        order.status === 'cancelled' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-blue-50 text-blue-700 border border-blue-200'
                       }`}>
+                        {order.status === 'delivered' && <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>}
+                        {order.status === 'cancelled' && <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>}
+                        {order.status !== 'delivered' && order.status !== 'cancelled' && <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>}
                         {order.status.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="py-4 text-right font-bold text-gray-900">₹{order.orderValue?.subtotal}</td>
+                    <td className="p-4 text-right font-bold text-gray-900 text-base">₹{order.orderValue?.subtotal}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           {orders.length === 0 && (
-            <div className="text-center py-10 text-gray-400">No orders found for this period.</div>
+            <div className="text-center py-12 bg-gray-50 rounded-lg mt-4 border border-dashed border-gray-200">
+              <span className="text-4xl mb-3 block">📉</span>
+              <p className="text-gray-500 font-medium">No orders found for this period.</p>
+            </div>
           )}
         </div>
       </div>
