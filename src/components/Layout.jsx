@@ -1,11 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [shopName, setShopName] = useState('');
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get('/shop-owner/profile');
+        if (response.data.data.shop) {
+          setShopName(response.data.data.shop.name);
+        }
+      } catch (err) {
+        console.error('Failed to fetch shop profile', err);
+      }
+    };
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -62,16 +80,18 @@ const Layout = ({ children }) => {
             <h1 className="text-3xl font-bold text-gray-900 capitalize mb-2">
               {location.pathname.split('/').pop().replace('-', ' ') || 'Dashboard'}
             </h1>
-            <p className="text-gray-500 text-base">Welcome back, {user?.name}</p>
+            <p className="text-gray-500 text-base">
+              Welcome back, {user?.name} {shopName && <span className="text-primary-600 font-semibold">• {shopName}</span>}
+            </p>
           </div>
           
           {/* Profile Widget properly aligned */}
           <div className="flex items-center gap-4 bg-white p-2 pr-4 rounded-full shadow-sm border">
             <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center font-bold text-primary-600 text-lg">
-              {user?.name?.charAt(0).toUpperCase()}
+              {user?.name?.charAt(0).toUpperCase() || 'O'}
             </div>
             <div className="text-left hidden sm:block">
-              <p className="font-bold text-sm text-gray-900">{user?.name}</p>
+              <p className="font-bold text-sm text-gray-900">{shopName || user?.name}</p>
               <p className="text-xs text-gray-500 font-medium">Shop Owner</p>
             </div>
           </div>

@@ -53,25 +53,32 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 py-12">
-      <div className="card w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Partner with Us</h1>
-          <p className="text-gray-600">Register as a shop owner</p>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 py-12 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{animationDelay: '2s'}}></div>
+      
+      <div className="card w-full max-w-xl relative z-10 shadow-2xl border-t-4 border-t-primary-600">
+        <div className="text-center mb-10">
+          <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary-100 shadow-sm">
+            <span className="text-3xl text-primary-600">🚀</span>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Partner with Us</h1>
+          <p className="text-gray-500 font-medium text-sm">Register as a shop owner to grow your business</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm font-medium text-center">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Full Name</label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-1">
+            <label className="form-label text-sm">Full Name</label>
             <input
               type="text"
-              className="form-input"
+              className="form-input bg-gray-50 focus:bg-white transition-colors"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="John Doe"
@@ -79,62 +86,65 @@ const SignupPage = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
-            <input
-              type="email"
-              className="form-input"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="owner@example.com"
-              required
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <label className="form-label text-sm">Email Address</label>
+              <input
+                type="email"
+                className="form-input bg-gray-50 focus:bg-white transition-colors"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="owner@example.com"
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="form-label text-sm">Phone Number</label>
+              <input
+                type="tel"
+                className="form-input bg-gray-50 focus:bg-white transition-colors"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="1234567890"
+                required
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Phone Number</label>
-            <input
-              type="tel"
-              className="form-input"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="1234567890"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Select Your Shop (if already listed)</label>
+          <div className="space-y-1">
+            <label className="form-label text-sm">Select Your Shop <span className="text-gray-400 font-normal">(if already listed)</span></label>
             <select
-              className="form-input"
+              className="form-input bg-gray-50 focus:bg-white transition-colors cursor-pointer"
               value={formData.shopId}
               onChange={(e) => setFormData({ ...formData, shopId: e.target.value })}
             >
-              <option value="">-- Select Shop --</option>
+              <option value="">-- Select an available shop --</option>
               {availableShops.map(shop => (
                 <option key={shop._id} value={shop._id}>{shop.name} ({shop.address.city})</option>
               ))}
             </select>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="form-group">
-              <label className="form-label">Password</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <label className="form-label text-sm">Password</label>
               <input
                 type="password"
-                className="form-input"
+                className="form-input bg-gray-50 focus:bg-white transition-colors"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="••••••••"
                 required
               />
             </div>
-            <div className="form-group">
-              <label className="form-label">Confirm</label>
+            <div className="space-y-1">
+              <label className="form-label text-sm">Confirm Password</label>
               <input
                 type="password"
-                className="form-input"
+                className="form-input bg-gray-50 focus:bg-white transition-colors"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                placeholder="••••••••"
                 required
               />
             </div>
@@ -142,15 +152,15 @@ const SignupPage = () => {
 
           <button
             type="submit"
-            className="btn btn-primary w-full mt-4"
+            className="btn btn-primary w-full py-3 text-lg mt-4 shadow-lg hover:shadow-xl"
             disabled={loading}
           >
             {loading ? 'Creating Account...' : 'Register'}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
-          Already have an account? <Link to="/login" className="text-primary-600 hover:underline">Log in</Link>
+        <div className="mt-8 pt-6 border-t border-gray-100 text-center text-sm font-medium text-gray-500">
+          Already have an account? <Link to="/login" className="text-primary-600 hover:text-primary-800 transition-colors">Log in here</Link>
         </div>
       </div>
     </div>
