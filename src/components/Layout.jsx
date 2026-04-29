@@ -21,58 +21,58 @@ const Layout = ({ children }) => {
 
   return (
     <div className="layout">
-      {/* Sidebar */}
+      {/* Premium Sidebar */}
       <aside className="sidebar">
-        <div className="mb-10">
-          <h2 className="text-xl font-bold text-primary-600">DelhiveryWay</h2>
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Shop Owner</p>
+        <div className="mb-10 px-2">
+          <h2 className="text-2xl font-bold text-primary-600 mb-1">DelhiveryWay</h2>
+          <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Shop Owner Portal</p>
         </div>
 
-        <nav className="space-y-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                location.pathname === item.path
-                  ? 'bg-primary-50 text-primary-600 font-bold'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <span>{item.icon}</span>
-              {item.name}
-            </Link>
-          ))}
+        <nav className="space-y-2 flex-1">
+          {navItems.map((item) => {
+            const isActive = location.pathname.startsWith(item.path);
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`nav-link ${isActive ? 'active' : ''}`}
+              >
+                <span className="text-lg">{item.icon}</span>
+                {item.name}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="absolute bottom-8 left-8 right-8">
+        <div className="mt-8 pt-6 border-t border-gray-100 px-2">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 w-full rounded-lg transition-colors font-semibold"
+            className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-red-500 hover:bg-red-50 w-full rounded-lg transition-all font-semibold"
           >
-            <span>🚪</span>
+            <span className="text-lg">🚪</span>
             Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <main className="main-content">
-        <header className="flex justify-between items-center mb-10">
+        <header className="flex justify-between items-center mb-10 pb-4 border-b border-gray-100">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 capitalize">
-              {location.pathname.split('/').pop() || 'Dashboard'}
+            <h1 className="text-3xl font-bold text-gray-900 capitalize mb-2">
+              {location.pathname.split('/').pop().replace('-', ' ') || 'Dashboard'}
             </h1>
-            <p className="text-gray-500 text-sm">Welcome back, {user?.name}</p>
+            <p className="text-gray-500 text-base">Welcome back, {user?.name}</p>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="font-bold text-sm">{user?.name}</p>
-              <p className="text-xs text-gray-500">Shop Owner</p>
+          {/* Profile Widget properly aligned */}
+          <div className="flex items-center gap-4 bg-white p-2 pr-4 rounded-full shadow-sm border">
+            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center font-bold text-primary-600 text-lg">
+              {user?.name?.charAt(0).toUpperCase()}
             </div>
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
-              {user?.name?.charAt(0)}
+            <div className="text-left hidden sm:block">
+              <p className="font-bold text-sm text-gray-900">{user?.name}</p>
+              <p className="text-xs text-gray-500 font-medium">Shop Owner</p>
             </div>
           </div>
         </header>

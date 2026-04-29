@@ -49,61 +49,73 @@ const Dashboard = () => {
         <div className="card bg-red-50 text-red-600 border-red-200">{error}</div>
       ) : (
         <div className="space-y-8">
+          {/* Performance Stats Area */}
           <section>
-            <h2 className="text-xl font-bold mb-6">Performance Last Month ({stats?.month})</h2>
-            <div className="stats-grid">
-              <div className="card stat-card">
-                <div className="stat-value">{stats?.totalOrders}</div>
+            <h2 className="text-xl font-bold mb-6 text-gray-800">Performance Last Month <span className="text-primary-600 font-medium">({stats?.month})</span></h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="card stat-card hover:translate-y-[-4px] transition-all duration-300">
+                <div className="stat-value">{stats?.totalOrders || 0}</div>
                 <div className="stat-label">Delivered Orders</div>
               </div>
-              <div className="card stat-card">
-                <div className="stat-value">₹{stats?.grossSales?.toLocaleString()}</div>
+              <div className="card stat-card hover:translate-y-[-4px] transition-all duration-300">
+                <div className="stat-value text-gray-800">₹{(stats?.grossSales || 0).toLocaleString()}</div>
                 <div className="stat-label">Gross Sales</div>
               </div>
-              <div className="card stat-card">
-                <div className="stat-value text-red-500">-₹{stats?.commissionDeducted?.toLocaleString()}</div>
+              <div className="card stat-card hover:translate-y-[-4px] transition-all duration-300">
+                <div className="stat-value text-red-500">-₹{(stats?.commissionDeducted || 0).toLocaleString()}</div>
                 <div className="stat-label">Commission Deducted</div>
               </div>
-              <div className="card stat-card bg-primary-600">
-                <div className="stat-value text-white">₹{stats?.payableAmount?.toLocaleString()}</div>
-                <div className="stat-label text-primary-100">Final Payable</div>
+              <div className="card stat-card premium-gradient-card shadow-lg hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300">
+                <div className="stat-value">₹{(stats?.payableAmount || 0).toLocaleString()}</div>
+                <div className="stat-label">Final Payable</div>
               </div>
             </div>
           </section>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="card">
-              <h3 className="font-bold mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <button onClick={() => navigate('/settings/timing')} className="btn btn-secondary flex-col p-6 h-auto">
-                  <span className="text-2xl mb-2">🕒</span>
-                  Update Timings
-                </button>
-                <button onClick={() => navigate('/settings/commission')} className="btn btn-secondary flex-col p-6 h-auto">
-                  <span className="text-2xl mb-2">💰</span>
-                  Commission Settings
-                </button>
-                <button onClick={() => navigate('/sales-report')} className="btn btn-secondary flex-col p-6 h-auto">
-                  <span className="text-2xl mb-2">📊</span>
-                  View Sales Report
-                </button>
-                <button onClick={() => window.alert('Coming Soon: Order History')} className="btn btn-secondary flex-col p-6 h-auto">
-                  <span className="text-2xl mb-2">📜</span>
-                  Order History
-                </button>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Quick Actions */}
+            <div className="lg:col-span-7">
+              <div className="card h-full">
+                <h3 className="text-lg font-bold mb-6 text-gray-800">Quick Actions</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <button onClick={() => navigate('/settings/timing')} className="quick-action-btn">
+                    <span className="quick-action-icon">🕒</span>
+                    <span>Update Timings</span>
+                  </button>
+                  <button onClick={() => navigate('/settings/commission')} className="quick-action-btn">
+                    <span className="quick-action-icon">💰</span>
+                    <span>Commission Settings</span>
+                  </button>
+                  <button onClick={() => navigate('/sales-report')} className="quick-action-btn">
+                    <span className="quick-action-icon">📊</span>
+                    <span>View Sales Report</span>
+                  </button>
+                  <button onClick={() => window.alert('Coming Soon: Order History')} className="quick-action-btn bg-gray-50 border-gray-100 opacity-80 hover:opacity-100">
+                    <span className="quick-action-icon grayscale opacity-60">📜</span>
+                    <span>Order History (Soon)</span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="card">
-              <h3 className="font-bold mb-4">Platform Updates</h3>
-              <div className="space-y-4">
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="font-bold text-sm">New Feature: Real-time Order Tracking</p>
-                  <p className="text-xs text-gray-500 mt-1">Customers can now see your preparation status in real-time.</p>
+            {/* Platform Updates */}
+            <div className="lg:col-span-5">
+              <div className="card h-full bg-primary-50 border-primary-100">
+                <div className="flex items-center gap-2 mb-6">
+                  <h3 className="text-lg font-bold text-primary-900">Platform Updates</h3>
+                  <span className="bg-primary-600 text-white text-xs px-2 py-0.5 rounded-full font-bold animate-pulse">NEW</span>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="font-bold text-sm">Policy Update: Weekend Commissions</p>
-                  <p className="text-xs text-gray-500 mt-1">Check out the new weekend incentive program in your settings.</p>
+                
+                <div className="space-y-4">
+                  <div className="glass p-4 rounded-xl border border-white/50 transition-all hover:bg-white/60">
+                    <p className="font-bold text-primary-800 text-sm mb-1">Real-time Order Tracking</p>
+                    <p className="text-sm text-primary-700">Customers can now see your preparation status in real-time. Keep statuses updated to improve customer satisfaction.</p>
+                  </div>
+                  
+                  <div className="glass p-4 rounded-xl border border-white/50 transition-all hover:bg-white/60">
+                    <p className="font-bold text-primary-800 text-sm mb-1">Weekend Incentives</p>
+                    <p className="text-sm text-primary-700">Check out the new weekend incentive program in your commission settings to maximize your earnings.</p>
+                  </div>
                 </div>
               </div>
             </div>
