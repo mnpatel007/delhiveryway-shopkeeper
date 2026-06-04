@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import api from '../../services/api';
 
 const CommissionSettings = () => {
   const [commission, setCommission] = useState({
     commissionType: 'percentage',
-    commissionValue: 10
+    commissionValue: 10,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -17,7 +17,7 @@ const CommissionSettings = () => {
       try {
         const response = await api.get('/shop-owner/commission');
         setCommission(response.data.data.commission);
-      } catch (err) {
+      } catch {
         console.error('Failed to fetch commission');
       } finally {
         setLoading(false);
@@ -51,7 +51,12 @@ const CommissionSettings = () => {
     }
   };
 
-  if (loading) return <Layout><div className="spinner"></div></Layout>;
+  if (loading)
+    return (
+      <Layout>
+        <div className="spinner"></div>
+      </Layout>
+    );
 
   return (
     <Layout>
@@ -59,7 +64,9 @@ const CommissionSettings = () => {
         <div className="card mb-8">
           <div className="mb-8">
             <h3 className="font-bold text-xl mb-2">Platform Commission</h3>
-            <p className="text-gray-500 text-sm">Set the commission you contribute to the platform for each order.</p>
+            <p className="text-gray-500 text-sm">
+              Set the commission you contribute to the platform for each order.
+            </p>
           </div>
 
           <div className="space-y-6">
@@ -83,16 +90,20 @@ const CommissionSettings = () => {
 
             <div className="form-group">
               <label className="form-label">
-                {commission.commissionType === 'percentage' ? 'Percentage Value' : 'Fixed Amount per Order'}
+                {commission.commissionType === 'percentage'
+                  ? 'Percentage Value'
+                  : 'Fixed Amount per Order'}
               </label>
               <div className="relative">
                 <input
                   type="number"
                   className="form-input pl-10"
                   value={commission.commissionValue}
-                  onChange={(e) => setCommission({ ...commission, commissionValue: e.target.value })}
+                  onChange={(e) =>
+                    setCommission({ ...commission, commissionValue: e.target.value })
+                  }
                   min="0"
-                  max={commission.commissionType === 'percentage' ? "100" : undefined}
+                  max={commission.commissionType === 'percentage' ? '100' : undefined}
                 />
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">
                   {commission.commissionType === 'percentage' ? '%' : '₹'}
@@ -102,7 +113,9 @@ const CommissionSettings = () => {
 
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
               <p className="text-sm text-blue-700">
-                <span className="font-bold">Info:</span> Your current plan allows for a minimum of {commission.commissionType === 'percentage' ? '5%' : '₹20'} contribution. Higher contributions can improve your shop's visibility in search results.
+                <span className="font-bold">Info:</span> Your current plan allows for a minimum of{' '}
+                {commission.commissionType === 'percentage' ? '5%' : '₹20'} contribution. Higher
+                contributions can improve your shop's visibility in search results.
               </p>
             </div>
           </div>
@@ -111,11 +124,7 @@ const CommissionSettings = () => {
         {error && <div className="mb-4 text-red-600 font-bold text-sm">{error}</div>}
         {message && <div className="mb-4 text-green-600 font-bold text-sm">{message}</div>}
 
-        <button
-          onClick={handleSave}
-          className="btn btn-primary"
-          disabled={saving}
-        >
+        <button onClick={handleSave} className="btn btn-primary" disabled={saving}>
           {saving ? 'Updating...' : 'Update Commission Settings'}
         </button>
       </div>

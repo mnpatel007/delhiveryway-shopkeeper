@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -43,7 +43,9 @@ const Layout = ({ children }) => {
       <aside className="sidebar">
         <div className="mb-10 px-2">
           <h2 className="text-2xl font-bold text-primary-600 mb-1">DelhiveryWay</h2>
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">Shop Owner Portal</p>
+          <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">
+            Shop Owner Portal
+          </p>
         </div>
 
         <nav className="space-y-2 flex-1">
@@ -81,10 +83,11 @@ const Layout = ({ children }) => {
               {location.pathname.split('/').pop().replace('-', ' ') || 'Dashboard'}
             </h1>
             <p className="text-gray-500 text-base">
-              Welcome back, {user?.name} {shopName && <span className="text-primary-600 font-semibold">• {shopName}</span>}
+              Welcome back, {user?.name}{' '}
+              {shopName && <span className="text-primary-600 font-semibold">• {shopName}</span>}
             </p>
           </div>
-          
+
           {/* Profile Widget properly aligned */}
           <div className="flex items-center gap-4 bg-white p-2 pr-4 rounded-full shadow-sm border">
             <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center font-bold text-primary-600 text-lg">

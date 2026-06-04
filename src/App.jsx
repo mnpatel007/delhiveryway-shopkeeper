@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
@@ -12,7 +11,7 @@ import TimingSettings from './pages/settings/TimingSettings';
 import CommissionSettings from './pages/settings/CommissionSettings';
 import SalesReport from './pages/reports/SalesReport';
 
-const PrivateRoute = ({ children, requireConsent = true }) => {
+const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <div className="loading-screen">Loading...</div>;
@@ -20,7 +19,7 @@ const PrivateRoute = ({ children, requireConsent = true }) => {
 
   // Note: We might need to fetch the shop data to check consent status
   // For now, we'll handle consent redirection inside the Dashboard or a Layout component
-  
+
   return children;
 };
 
@@ -34,35 +33,50 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmailPage />} />
 
         {/* Private Routes */}
-        <Route path="/consent" element={
-          <PrivateRoute requireConsent={false}>
-            <ConsentPage />
-          </PrivateRoute>
-        } />
-        
-        <Route path="/dashboard" element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        } />
+        <Route
+          path="/consent"
+          element={
+            <PrivateRoute requireConsent={false}>
+              <ConsentPage />
+            </PrivateRoute>
+          }
+        />
 
-        <Route path="/settings/timing" element={
-          <PrivateRoute>
-            <TimingSettings />
-          </PrivateRoute>
-        } />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
 
-        <Route path="/settings/commission" element={
-          <PrivateRoute>
-            <CommissionSettings />
-          </PrivateRoute>
-        } />
+        <Route
+          path="/settings/timing"
+          element={
+            <PrivateRoute>
+              <TimingSettings />
+            </PrivateRoute>
+          }
+        />
 
-        <Route path="/sales-report" element={
-          <PrivateRoute>
-            <SalesReport />
-          </PrivateRoute>
-        } />
+        <Route
+          path="/settings/commission"
+          element={
+            <PrivateRoute>
+              <CommissionSettings />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/sales-report"
+          element={
+            <PrivateRoute>
+              <SalesReport />
+            </PrivateRoute>
+          }
+        />
 
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/dashboard" />} />
