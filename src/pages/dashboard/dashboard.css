@@ -106,36 +106,6 @@
   color: var(--ink-faint);
 }
 
-/* -------------------------------------------------------------- payable */
-.payable {
-  margin-top: 16px;
-  padding: 22px 26px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  flex-wrap: wrap;
-  border-left: 3px solid var(--mint);
-}
-
-.payable div {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.payable strong {
-  font-size: 30px;
-  font-weight: 800;
-  color: var(--mint);
-}
-
-.payable p {
-  margin: 0;
-  font-size: 13.5px;
-  max-width: 320px;
-}
-
 /* ---------------------------------------------------------------- chart */
 .chart {
   margin-top: 16px;
@@ -203,8 +173,7 @@
   .earn-hero {
     padding: 24px 22px;
   }
-  .payable,
-  .chart {
+    .chart {
     padding: 20px 18px;
   }
   .earn-split {

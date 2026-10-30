@@ -95,7 +95,7 @@ const Dashboard = () => {
                 <div className="earn-figure numeral">{money(data.revenue)}</div>
                 <p className="muted earn-note">
                   From {data.delivered} delivered order{data.delivered === 1 ? '' : 's'}
-                  {data.averageOrderValue > 0 && <> &middot; {money(data.averageOrderValue)} average</>}
+
                 </p>
               </div>
               <div className="earn-split">
@@ -120,12 +120,10 @@ const Dashboard = () => {
                 ['Delivered', data.delivered, 'ok'],
                 ['Cancelled', data.cancelled, data.cancelled > 0 ? 'bad' : null],
                 [
-                  'Commission',
-                  money(data.commission.deducted),
+                  'Average order',
+                  money(data.averageOrderValue),
                   null,
-                  data.commission.type === 'percentage'
-                    ? `${data.commission.value}% of sales`
-                    : `${money(data.commission.value)} per order`,
+                  data.delivered ? 'across delivered orders' : null,
                 ],
               ].map(([label, value, tone, sub], i) => (
                 <motion.div
@@ -142,22 +140,6 @@ const Dashboard = () => {
                 </motion.div>
               ))}
             </div>
-
-            <motion.div
-              className="glass payable"
-              variants={rise}
-              initial="hidden"
-              animate="show"
-              custom={4}
-            >
-              <div>
-                <span className="eyebrow">Due to you</span>
-                <strong className="numeral">{money(data.payableAmount)}</strong>
-              </div>
-              <p className="muted">
-                Your sales less our commission, for {data.label.toLowerCase()}.
-              </p>
-            </motion.div>
 
             {data.dailyBreakdown?.length > 0 && (
               <motion.div

@@ -4,6 +4,14 @@ import api from '../../services/api';
 import { money } from '../../utils/format';
 import './orders.css';
 
+// Same windows as the overview, so the two screens always agree.
+const PERIODS = [
+  { key: 'this-month', label: 'This month' },
+  { key: 'last-month', label: 'Last month' },
+  { key: 'last-30', label: 'Last 30 days' },
+  { key: 'all', label: 'All time' },
+];
+
 const FILTERS = [
   { key: 'all', label: 'All' },
   { key: 'delivered', label: 'Delivered' },
@@ -23,17 +31,24 @@ const prettyStatus = (s) =>
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
+  const [meta, setMeta] = useState({ total: 0, truncated: false, label: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [period, setPeriod] = useState('this-month');
   const [filter, setFilter] = useState('all');
   const [open, setOpen] = useState(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (p) => {
     setError('');
     try {
-      const res = await api.get('/shop-owner/orders');
-      setOrders(res.data?.data?.orders || []);
+      const res = await api.get('/shop-owner/orders', { params: { period: p } });
+      const d = res.data?.data || {};
+      setOrders(d.orders || []);
+      setMeta({
+        total: d.total ?? (d.orders || []).length,
+        truncated: Boolean(d.truncated),
+        label: d.label || '',
+      });
     } catch (err) {
       setError(err.response?.data?.message || 'Could not load your orders.');
     } finally {
@@ -45,8 +60,14 @@ const OrdersPage = () => {
     // Fetching on mount: state lands after the request settles, which the
     // set-state-in-effect rule cannot tell apart from a sync cascade.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-  }, [load]);
+    load(period);
+  }, [load, period]);
+
+  const changePeriod = (key) => {
+    setLoading(true);
+    setOpen(null);
+    setPeriod(key);
+  };
 
   const visible = orders.filter((o) => filter === 'all' || o.status === filter);
 
@@ -70,9 +91,18 @@ const OrdersPage = () => {
             Your orders
           </h1>
         </div>
-        <button className="btn btn-ghost" onClick={load}>
-          Refresh
-        </button>
+
+        <div className="period-switch">
+          {PERIODS.map((p) => (
+            <button
+              key={p.key}
+              className={period === p.key ? 'active' : ''}
+              onClick={() => changePeriod(p.key)}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="order-filters">
@@ -89,11 +119,23 @@ const OrdersPage = () => {
             </button>
           );
         })}
+        <button className="btn btn-ghost order-refresh" onClick={() => changePeriod(period)}>
+          Refresh
+        </button>
       </div>
+
+      {meta.truncated && (
+        <div className="alert alert-info">
+          Showing the most recent {orders.length} of {meta.total} orders for this period. Narrow the
+          period to see the rest.
+        </div>
+      )}
 
       {totals.delivered > 0 && (
         <div className="glass order-total">
-          <span className="eyebrow">Shown here &middot; {totals.delivered} delivered</span>
+          <span className="eyebrow">
+            {meta.label} &middot; {totals.delivered} delivered
+          </span>
           <strong className="numeral">{money(totals.revenue)}</strong>
         </div>
       )}
@@ -110,7 +152,7 @@ const OrdersPage = () => {
           <h3>Nothing to show</h3>
           <p className="muted">
             {orders.length === 0
-              ? 'Orders appear here the moment a customer buys from your shop.'
+              ? `No orders in ${(meta.label || 'this period').toLowerCase()}. Try a wider period.`
               : 'No orders match this filter.'}
           </p>
         </div>
@@ -124,7 +166,7 @@ const OrdersPage = () => {
                 className={`glass glass-hover order-card ${o.status}`}
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.45 }}
+                transition={{ delay: Math.min(i * 0.02, 0.25), duration: 0.4 }}
               >
                 <button
                   className="order-head"

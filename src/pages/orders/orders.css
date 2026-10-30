@@ -291,3 +291,18 @@
     grid-column: 2;
   }
 }
+
+/* The period switch is shared with the overview; orders adds a refresh
+   alongside the status filters. */
+.order-refresh {
+  margin-left: auto;
+  padding: 9px 16px;
+  font-size: 13px;
+}
+
+@media (max-width: 560px) {
+  .order-refresh {
+    margin-left: 0;
+    width: 100%;
+  }
+}
