@@ -13,6 +13,7 @@ const SignupPage = () => {
     confirm: '',
   });
   const [error, setError] = useState('');
+  const [existing, setExisting] = useState(null);
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -47,11 +48,42 @@ const SignupPage = () => {
       });
       setDone(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Could not create your account.');
+      const data = err.response?.data;
+      // They already order with us. That is the common case, so offer the way
+      // forward rather than a dead end.
+      if (data?.accountExists) setExisting(data.matchedOn || 'email');
+      else setError(data?.message || 'Could not create your account.');
     } finally {
       setBusy(false);
     }
   };
+
+  if (existing) {
+    return (
+      <AuthLayout title="You already have an account" subtitle="No need to register twice.">
+        <div className="auth-centered">
+          <div className="auth-result-icon wait" aria-hidden="true">
+            ◉
+          </div>
+          <p className="muted" style={{ lineHeight: 1.65 }}>
+            That {existing} is already registered with us — most likely from ordering on the
+            customer site. Sign in with it here and tell us about your shop; you keep one account
+            and one password for both.
+          </p>
+          <Link to="/login" className="btn btn-primary btn-wide" style={{ marginTop: 18 }}>
+            Sign in instead
+          </Link>
+          <button
+            className="auth-link"
+            style={{ background: 'none', border: 0, cursor: 'pointer', marginTop: 16 }}
+            onClick={() => setExisting(null)}
+          >
+            Use different details
+          </button>
+        </div>
+      </AuthLayout>
+    );
+  }
 
   if (done) {
     return (

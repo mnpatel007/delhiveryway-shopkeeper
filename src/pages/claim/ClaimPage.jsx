@@ -6,8 +6,12 @@ import { useVendor } from '../../context/VendorContext';
 import AuthLayout from '../auth/AuthLayout';
 
 /**
- * The gate. A verified vendor lands here until they redeem the one-time code
- * an admin issued for their shop.
+ * The gate between signing in and seeing a shop.
+ *
+ * Three states, driven by /shop-owner/status:
+ *   not applied  -> ask which shop is theirs
+ *   applied      -> waiting on an admin to issue a code
+ *   code issued  -> enter it, once
  */
 const ClaimPage = () => {
   const { status, refresh } = useVendor();
@@ -15,16 +19,34 @@ const ClaimPage = () => {
   const navigate = useNavigate();
 
   const [code, setCode] = useState('');
+  const [shopName, setShopName] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
+  const applied = Boolean(status?.applied);
+  const codeIssued = Boolean(status?.codeIssued);
+
   // Keep the field in the shape codes are issued in: XXXX-XXXX.
-  const onChange = (e) => {
+  const onCodeChange = (e) => {
     const raw = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
     setCode(raw.length > 4 ? `${raw.slice(0, 4)}-${raw.slice(4)}` : raw);
   };
 
-  const submit = async (e) => {
+  const apply = async (e) => {
+    e.preventDefault();
+    setError('');
+    setBusy(true);
+    try {
+      await api.post('/shop-owner/apply', { shopName });
+      await refresh();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not send your request.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const claim = async (e) => {
     e.preventDefault();
     setError('');
     setBusy(true);
@@ -45,41 +67,64 @@ const ClaimPage = () => {
     navigate('/login');
   };
 
-  const waiting = !status?.codeIssued;
+  const footer = (
+    <button
+      onClick={signOut}
+      className="auth-link"
+      style={{ background: 'none', border: 0, cursor: 'pointer', font: 'inherit' }}
+    >
+      Sign out
+    </button>
+  );
 
+  /* ------------------------------------------------ 1. has not applied yet */
+  if (!applied && !codeIssued) {
+    return (
+      <AuthLayout
+        title="Which shop is yours?"
+        subtitle="You are signed in. Tell us your shop and we will connect you to it."
+        footer={footer}
+      >
+        <form onSubmit={apply}>
+          {error && <div className="alert alert-error">{error}</div>}
+
+          <div className="alert alert-info">
+            Hello {user?.name?.split(' ')[0]} — you are using the same account you order with, so
+            there is nothing new to remember.
+          </div>
+
+          <div className="field">
+            <label htmlFor="shopName">Shop name</label>
+            <input
+              id="shopName"
+              className="input"
+              placeholder="The name customers see"
+              value={shopName}
+              onChange={(e) => setShopName(e.target.value)}
+              required
+            />
+          </div>
+
+          <button className="btn btn-primary btn-wide" type="submit" disabled={busy || !shopName.trim()}>
+            {busy ? 'Sending...' : 'Request access'}
+          </button>
+        </form>
+      </AuthLayout>
+    );
+  }
+
+  /* ------------------------------------------- 2 & 3. waiting / enter code */
   return (
     <AuthLayout
-      title={waiting ? 'Almost there' : 'Enter your access code'}
+      title={codeIssued ? 'Enter your access code' : 'Almost there'}
       subtitle={
-        waiting
-          ? 'Your account is ready — it just needs connecting to your shop.'
-          : 'Use the code we emailed you. You only need it once.'
+        codeIssued
+          ? 'Use the code we emailed you. You only need it once.'
+          : 'We are matching you to your shop.'
       }
-      footer={
-        <button
-          onClick={signOut}
-          className="auth-link"
-          style={{ background: 'none', border: 0, cursor: 'pointer', font: 'inherit' }}
-        >
-          Sign out
-        </button>
-      }
+      footer={footer}
     >
-      {waiting ? (
-        <div className="auth-centered">
-          <div className="auth-result-icon wait" aria-hidden="true">
-            ◷
-          </div>
-          <p className="muted" style={{ lineHeight: 1.65 }}>
-            Hello {user?.name?.split(' ')[0]}. We are matching your account to{' '}
-            <strong>{status?.requestedShopName || 'your shop'}</strong>. Once our team confirms it,
-            you will get an access code by email.
-          </p>
-          <div className="alert alert-info" style={{ textAlign: 'left', marginTop: 18 }}>
-            Already been sent a code? Enter it below.
-          </div>
-        </div>
-      ) : (
+      {codeIssued ? (
         <div className="alert alert-ok">
           A code for your shop was emailed to <strong>{user?.email}</strong>
           {status?.codeExpiresAt && (
@@ -94,9 +139,23 @@ const ClaimPage = () => {
           )}
           .
         </div>
+      ) : (
+        <div className="auth-centered">
+          <div className="auth-result-icon wait" aria-hidden="true">
+            ◷
+          </div>
+          <p className="muted" style={{ lineHeight: 1.65 }}>
+            Thanks {user?.name?.split(' ')[0]}. We are checking{' '}
+            <strong>{status?.requestedShopName || 'your shop'}</strong>. Once confirmed, an access
+            code arrives by email.
+          </p>
+          <div className="alert alert-info" style={{ textAlign: 'left', marginTop: 18 }}>
+            Already been sent a code? Enter it below.
+          </div>
+        </div>
       )}
 
-      <form onSubmit={submit} style={{ marginTop: waiting ? 18 : 0 }}>
+      <form onSubmit={claim} style={{ marginTop: codeIssued ? 0 : 18 }}>
         {error && <div className="alert alert-error">{error}</div>}
 
         <div className="field">
@@ -106,14 +165,9 @@ const ClaimPage = () => {
             className="input"
             placeholder="ABCD-2345"
             value={code}
-            onChange={onChange}
+            onChange={onCodeChange}
             autoComplete="one-time-code"
-            style={{
-              textAlign: 'center',
-              fontSize: 24,
-              fontWeight: 800,
-              letterSpacing: '0.3em',
-            }}
+            style={{ textAlign: 'center', fontSize: 24, fontWeight: 800, letterSpacing: '0.3em' }}
             required
           />
         </div>

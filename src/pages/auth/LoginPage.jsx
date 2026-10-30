@@ -25,10 +25,10 @@ const LoginPage = () => {
 
       if (!token || !user) throw new Error('Unexpected response from the server.');
 
-      if (user.role !== 'vendor') {
-        setError('That account is not a partner account. Use the customer app to sign in.');
-        return;
-      }
+      // Deliberately no role check here. Most shop owners already have a
+      // customer account, and this is where they sign in to ask for partner
+      // access; the route guard sends them to the claim gate if they are not
+      // connected to a shop yet.
 
       login(token, user);
       // Where they land is decided by the route guard: the claim screen if
