@@ -1,0 +1,213 @@
+/* --------------------------------------------------------- period switch */
+.period-switch {
+  display: inline-flex;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  padding: 4px;
+  flex-wrap: wrap;
+}
+
+.period-switch button {
+  border: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 15px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.25s var(--ease),
+    background 0.25s var(--ease);
+}
+
+.period-switch button:hover {
+  color: var(--ink);
+}
+
+.period-switch button.active {
+  color: #fff;
+  background: var(--grad-accent);
+}
+
+/* ------------------------------------------------------------- earnings */
+.earn-hero {
+  padding: 32px 34px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 26px;
+  flex-wrap: wrap;
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(109, 139, 255, 0.2), transparent 60%),
+    var(--surface);
+}
+
+.earn-figure {
+  font-size: clamp(38px, 7vw, 62px);
+  font-weight: 800;
+  line-height: 1.05;
+  margin: 10px 0 8px;
+  background: linear-gradient(120deg, #ffffff 20%, #b7c6ff 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.earn-note {
+  margin: 0;
+  font-size: 14px;
+}
+
+.earn-split {
+  display: flex;
+  gap: 26px;
+}
+
+.earn-split div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.earn-split strong {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* ---------------------------------------------------------------- stats */
+.stat-card {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-value {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.stat-value.ok {
+  color: var(--mint);
+}
+
+.stat-value.bad {
+  color: var(--rose);
+}
+
+.stat-sub {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+/* -------------------------------------------------------------- payable */
+.payable {
+  margin-top: 16px;
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  border-left: 3px solid var(--mint);
+}
+
+.payable div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.payable strong {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--mint);
+}
+
+.payable p {
+  margin: 0;
+  font-size: 13.5px;
+  max-width: 320px;
+}
+
+/* ---------------------------------------------------------------- chart */
+.chart {
+  margin-top: 16px;
+  padding: 24px 26px 20px;
+}
+
+.chart h3 {
+  font-size: 16px;
+}
+
+.chart-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.chart-link:hover {
+  text-decoration: underline;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 180px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.bar-col {
+  flex: 1 0 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  height: 100%;
+}
+
+.bar-track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  width: 100%;
+  border-radius: 7px;
+  background: var(--grad-accent);
+  box-shadow: 0 0 22px rgba(109, 139, 255, 0.4);
+}
+
+.bar-label {
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .earn-hero {
+    padding: 24px 22px;
+  }
+  .payable,
+  .chart {
+    padding: 20px 18px;
+  }
+  .earn-split {
+    gap: 18px;
+  }
+}

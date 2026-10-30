@@ -1,161 +1,207 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Layout from '../../components/Layout';
+import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import api from '../../services/api';
+import { useVendor } from '../../context/VendorContext';
+import { money } from '../../utils/format';
+import './dashboard.css';
+
+const PERIODS = [
+  { key: 'this-month', label: 'This month' },
+  { key: 'last-month', label: 'Last month' },
+  { key: 'last-30', label: 'Last 30 days' },
+  { key: 'all', label: 'All time' },
+];
+
+const rise = {
+  hidden: { opacity: 0, y: 16 },
+  show: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
 
 const Dashboard = () => {
-  const [stats, setStats] = useState(null);
+  const { status } = useVendor();
+  const [period, setPeriod] = useState('this-month');
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+
+  const load = useCallback(async (p) => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await api.get('/shop-owner/monthly-stats', { params: { period: p } });
+      setData(res.data?.data || null);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not load your figures.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 1. Fetch Profile to check consent
-        const profileRes = await api.get('/shop-owner/profile');
-        const { shop } = profileRes.data.data;
+    // Fetching on mount: state lands after the request settles, which the
+    // set-state-in-effect rule cannot tell apart from a sync cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load(period);
+  }, [load, period]);
 
-        if (!shop) {
-          setError('No shop associated with your account. Please contact support.');
-          setLoading(false);
-          return;
-        }
-
-        if (!shop.consent?.hasAgreed) {
-          navigate('/consent');
-          return;
-        }
-
-        // 2. Fetch Monthly Stats
-        const statsRes = await api.get('/shop-owner/monthly-stats');
-        setStats(statsRes.data.data);
-      } catch (err) {
-        setError('Failed to load dashboard data');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [navigate]);
-
-  if (loading)
-    return (
-      <Layout>
-        <div className="flex justify-center p-20">
-          <div className="spinner"></div>
-        </div>
-      </Layout>
-    );
+  const peak = Math.max(1, ...(data?.dailyBreakdown || []).map((d) => d.revenue));
 
   return (
-    <Layout>
-      {error ? (
-        <div className="card bg-red-50 text-red-600 border-red-200">{error}</div>
-      ) : (
-        <div className="space-y-8">
-          {/* Performance Stats Area */}
-          <section>
-            <h2 className="text-xl font-bold mb-6 text-gray-800">
-              Performance Last Month{' '}
-              <span className="text-primary-600 font-medium">({stats?.month})</span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="card stat-card hover:translate-y-[-4px] transition-all duration-300">
-                <div className="stat-value">{stats?.totalOrders || 0}</div>
-                <div className="stat-label">Delivered Orders</div>
-              </div>
-              <div className="card stat-card hover:translate-y-[-4px] transition-all duration-300">
-                <div className="stat-value text-gray-800">
-                  ₹{(stats?.grossSales || 0).toLocaleString()}
-                </div>
-                <div className="stat-label">Gross Sales</div>
-              </div>
-              <div className="card stat-card hover:translate-y-[-4px] transition-all duration-300">
-                <div className="stat-value text-red-500">
-                  -₹{(stats?.commissionDeducted || 0).toLocaleString()}
-                </div>
-                <div className="stat-label">Commission Deducted</div>
-              </div>
-              <div className="card stat-card premium-gradient-card shadow-lg hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300">
-                <div className="stat-value">₹{(stats?.payableAmount || 0).toLocaleString()}</div>
-                <div className="stat-label text-primary-100">Net Earnings</div>
-                <div className="text-xs text-white font-medium mt-2 bg-white/20 inline-block px-2 py-1 rounded-md">
-                  Amount in your bank
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Quick Actions */}
-            <div className="lg:col-span-7">
-              <div className="card h-full">
-                <h3 className="text-lg font-bold mb-6 text-gray-800">Quick Actions</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <button onClick={() => navigate('/settings/timing')} className="quick-action-btn">
-                    <span className="quick-action-icon">🕒</span>
-                    <span>Update Timings</span>
-                  </button>
-                  <button
-                    onClick={() => navigate('/settings/commission')}
-                    className="quick-action-btn"
-                  >
-                    <span className="quick-action-icon">💰</span>
-                    <span>Commission Settings</span>
-                  </button>
-                  <button onClick={() => navigate('/sales-report')} className="quick-action-btn">
-                    <span className="quick-action-icon">📊</span>
-                    <span>View Sales Report</span>
-                  </button>
-                  <button
-                    onClick={() => window.alert('Coming Soon: Order History')}
-                    className="quick-action-btn bg-gray-50 border-gray-100 opacity-80 hover:opacity-100"
-                  >
-                    <span className="quick-action-icon grayscale opacity-60">📜</span>
-                    <span>Order History (Soon)</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Platform Updates */}
-            <div className="lg:col-span-5">
-              <div className="card h-full bg-primary-50 border-primary-100">
-                <div className="flex items-center gap-2 mb-6">
-                  <h3 className="text-lg font-bold text-primary-900">Platform Updates</h3>
-                  <span className="bg-primary-600 text-white text-xs px-2 py-0.5 rounded-full font-bold animate-pulse">
-                    NEW
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="glass p-4 rounded-xl border border-white/50 transition-all hover:bg-white/60">
-                    <p className="font-bold text-primary-800 text-sm mb-1">
-                      Real-time Order Tracking
-                    </p>
-                    <p className="text-sm text-primary-700">
-                      Customers can now see your preparation status in real-time. Keep statuses
-                      updated to improve customer satisfaction.
-                    </p>
-                  </div>
-
-                  <div className="glass p-4 rounded-xl border border-white/50 transition-all hover:bg-white/60">
-                    <p className="font-bold text-primary-800 text-sm mb-1">Weekend Incentives</p>
-                    <p className="text-sm text-primary-700">
-                      Check out the new weekend incentive program in your commission settings to
-                      maximize your earnings.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className="page">
+      <div className="spread" style={{ marginBottom: 22 }}>
+        <div>
+          <p className="eyebrow">Overview</p>
+          <h1 className="display" style={{ fontSize: 'clamp(26px,4vw,38px)' }}>
+            {status?.shop?.name || 'Your shop'}
+          </h1>
         </div>
+
+        <div className="period-switch">
+          {PERIODS.map((p) => (
+            <button
+              key={p.key}
+              className={period === p.key ? 'active' : ''}
+              onClick={() => setPeriod(p.key)}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {error && <div className="alert alert-error">{error}</div>}
+
+      {loading ? (
+        <div className="center-screen" style={{ minHeight: '40vh' }}>
+          <div className="spinner" />
+          <p>Adding it up...</p>
+        </div>
+      ) : (
+        data && (
+          <>
+            <motion.div
+              className="glass earn-hero skew-edge"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div>
+                <p className="eyebrow">Your earnings &middot; {data.label}</p>
+                <div className="earn-figure numeral">{money(data.revenue)}</div>
+                <p className="muted earn-note">
+                  From {data.delivered} delivered order{data.delivered === 1 ? '' : 's'}
+                  {data.averageOrderValue > 0 && <> &middot; {money(data.averageOrderValue)} average</>}
+                </p>
+              </div>
+              <div className="earn-split">
+                {data.taxes > 0 && (
+                  <div>
+                    <span className="eyebrow">Tax</span>
+                    <strong className="numeral">{money(data.taxes)}</strong>
+                  </div>
+                )}
+                {data.packagingCharges > 0 && (
+                  <div>
+                    <span className="eyebrow">Packaging</span>
+                    <strong className="numeral">{money(data.packagingCharges)}</strong>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            <div className="grid-auto" style={{ marginTop: 16 }}>
+              {[
+                ['Orders received', data.ordersPlaced, null],
+                ['Delivered', data.delivered, 'ok'],
+                ['Cancelled', data.cancelled, data.cancelled > 0 ? 'bad' : null],
+                [
+                  'Commission',
+                  money(data.commission.deducted),
+                  null,
+                  data.commission.type === 'percentage'
+                    ? `${data.commission.value}% of sales`
+                    : `${money(data.commission.value)} per order`,
+                ],
+              ].map(([label, value, tone, sub], i) => (
+                <motion.div
+                  key={label}
+                  className="glass glass-hover stat-card"
+                  variants={rise}
+                  initial="hidden"
+                  animate="show"
+                  custom={i}
+                >
+                  <span className="eyebrow">{label}</span>
+                  <strong className={`stat-value numeral ${tone || ''}`}>{value}</strong>
+                  {sub && <span className="stat-sub">{sub}</span>}
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.div
+              className="glass payable"
+              variants={rise}
+              initial="hidden"
+              animate="show"
+              custom={4}
+            >
+              <div>
+                <span className="eyebrow">Due to you</span>
+                <strong className="numeral">{money(data.payableAmount)}</strong>
+              </div>
+              <p className="muted">
+                Your sales less our commission, for {data.label.toLowerCase()}.
+              </p>
+            </motion.div>
+
+            {data.dailyBreakdown?.length > 0 && (
+              <motion.div
+                className="glass chart"
+                variants={rise}
+                initial="hidden"
+                animate="show"
+                custom={5}
+              >
+                <div className="spread" style={{ marginBottom: 18 }}>
+                  <h3>Day by day</h3>
+                  <Link to="/orders" className="chart-link">
+                    See all orders &rarr;
+                  </Link>
+                </div>
+                <div className="bars">
+                  {data.dailyBreakdown
+                    .slice(0, 14)
+                    .reverse()
+                    .map((d) => (
+                      <div className="bar-col" key={d.date} title={`${d.date}: ${money(d.revenue)}`}>
+                        <div className="bar-track">
+                          <motion.div
+                            className="bar-fill"
+                            initial={{ height: 0 }}
+                            animate={{ height: `${Math.max(4, (d.revenue / peak) * 100)}%` }}
+                            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        </div>
+                        <span className="bar-label">
+                          {new Date(d.date + 'T00:00:00').toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                          })}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </motion.div>
+            )}
+          </>
+        )
       )}
-    </Layout>
+    </div>
   );
 };
 

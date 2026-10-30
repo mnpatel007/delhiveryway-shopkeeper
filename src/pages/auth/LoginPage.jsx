@@ -1,107 +1,104 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import AuthLayout, { AuthLink } from './AuthLayout';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
+  const [busy, setBusy] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const submit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
-
+    setBusy(true);
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const { token, user } = response.data.data;
+      const res = await api.post('/auth/login', form);
+      const token = res.data?.token || res.data?.data?.token;
+      const user = res.data?.data?.user || res.data?.user;
+
+      if (!token || !user) throw new Error('Unexpected response from the server.');
 
       if (user.role !== 'vendor') {
-        throw new Error('Access denied. This portal is for shop owners only.');
+        setError('That account is not a partner account. Use the customer app to sign in.');
+        return;
       }
 
       login(token, user);
+      // Where they land is decided by the route guard: the claim screen if
+      // they have no shop yet, the dashboard if they do.
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Login failed');
+      setError(err.response?.data?.message || err.message || 'Could not sign you in.');
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-      <div
-        className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"
-        style={{ animationDelay: '2s' }}
-      ></div>
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Sign in to manage your shop."
+      footer={
+        <>
+          New partner? <AuthLink to="/signup">Create an account</AuthLink>
+        </>
+      }
+    >
+      <form onSubmit={submit}>
+        {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="card w-full max-w-md relative z-10 shadow-2xl border-t-4 border-t-primary-600">
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary-100 shadow-sm">
-            <span className="text-3xl text-primary-600">🏪</span>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
-            Shop Owner Portal
-          </h1>
-          <p className="text-gray-500 font-medium text-sm">Sign in to manage your store</p>
+        <div className="field">
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            className="input"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={form.email}
+            onChange={set('email')}
+            required
+          />
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm font-medium text-center">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-1">
-            <label className="form-label text-sm">Email Address</label>
-            <input
-              type="email"
-              className="form-input bg-gray-50 focus:bg-white transition-colors"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="owner@example.com"
-              required
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="form-label text-sm">Password</label>
-            <input
-              type="password"
-              className="form-input bg-gray-50 focus:bg-white transition-colors"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            className="input"
+            type={showPw ? 'text' : 'password'}
+            autoComplete="current-password"
+            placeholder="Your password"
+            value={form.password}
+            onChange={set('password')}
+            required
+          />
           <button
-            type="submit"
-            className="btn btn-primary w-full py-3 text-lg mt-2 shadow-lg hover:shadow-xl"
-            disabled={loading}
+            type="button"
+            className="auth-link"
+            style={{ background: 'none', border: 0, padding: 0, marginTop: 8, cursor: 'pointer' }}
+            onClick={() => setShowPw((v) => !v)}
           >
-            {loading ? 'Authenticating...' : 'Sign In'}
+            {showPw ? 'Hide password' : 'Show password'}
           </button>
-        </form>
-
-        <div className="mt-8 pt-6 border-t border-gray-100 text-center text-sm font-medium text-gray-500">
-          Don't have a shop account?{' '}
-          <Link to="/signup" className="text-primary-600 hover:text-primary-800 transition-colors">
-            Apply here
-          </Link>
         </div>
-      </div>
-    </div>
+
+        <button className="btn btn-primary btn-wide" type="submit" disabled={busy}>
+          {busy ? 'Signing in...' : 'Sign in'}
+        </button>
+
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <AuthLink to="/forgot-password">Forgotten your password?</AuthLink>
+        </div>
+      </form>
+    </AuthLayout>
   );
 };
 

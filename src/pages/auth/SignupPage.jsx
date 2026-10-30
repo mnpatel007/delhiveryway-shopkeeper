@@ -1,182 +1,184 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../services/api';
+import AuthLayout, { AuthLink } from './AuthLayout';
 
 const SignupPage = () => {
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     name: '',
+    shopName: '',
     email: '',
     phone: '',
     password: '',
-    confirmPassword: '',
-    shopId: '',
+    confirm: '',
   });
-  const [availableShops, setAvailableShops] = useState([]);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const navigate = useNavigate();
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  useEffect(() => {
-    const fetchShops = async () => {
-      try {
-        const response = await api.get('/shop-owner/available-shops');
-        setAvailableShops(response.data.data.shops || []);
-      } catch {
-        console.error('Failed to fetch available shops');
-      }
-    };
-    fetchShops();
-  }, []);
-
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (formData.password !== formData.confirmPassword) {
-      return setError('Passwords do not match');
+    if (form.password !== form.confirm) {
+      setError('The two passwords do not match.');
+      return;
+    }
+    if (form.password.length < 6) {
+      setError('Use at least 6 characters for your password.');
+      return;
+    }
+    if (!/^[0-9]{10}$/.test(form.phone)) {
+      setError('Enter a 10-digit phone number.');
+      return;
     }
 
-    setLoading(true);
-
+    setBusy(true);
     try {
       await api.post('/auth/signup', {
-        ...formData,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        password: form.password,
+        shopName: form.shopName.trim(),
         role: 'vendor',
       });
-      navigate('/login', { state: { message: 'Signup successful! Please log in.' } });
+      setDone(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Signup failed');
+      setError(err.response?.data?.message || 'Could not create your account.');
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
   };
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 py-12 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-      <div
-        className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"
-        style={{ animationDelay: '2s' }}
-      ></div>
-
-      <div className="card w-full max-w-xl relative z-10 shadow-2xl border-t-4 border-t-primary-600">
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary-100 shadow-sm">
-            <span className="text-3xl text-primary-600">🚀</span>
+  if (done) {
+    return (
+      <AuthLayout title="Check your email" subtitle="One more step before you can sign in.">
+        <div className="auth-centered">
+          <div className="auth-result-icon ok" aria-hidden="true">
+            ✓
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Partner with Us</h1>
-          <p className="text-gray-500 font-medium text-sm">
-            Register as a shop owner to grow your business
+          <p className="muted" style={{ lineHeight: 1.65 }}>
+            We have sent a verification link to <strong>{form.email}</strong>. Open it to confirm
+            your address.
+          </p>
+          <div className="alert alert-info" style={{ textAlign: 'left', marginTop: 18 }}>
+            After verifying, our team will connect your account to{' '}
+            <strong>{form.shopName || 'your shop'}</strong> and send you an access code. You will
+            enter it once when you first sign in.
+          </div>
+          <Link to="/login" className="btn btn-primary btn-wide" style={{ marginTop: 6 }}>
+            Go to sign in
+          </Link>
+        </div>
+      </AuthLayout>
+    );
+  }
+
+  return (
+    <AuthLayout
+      title="Become a partner"
+      subtitle="Tell us about you and your shop."
+      footer={
+        <>
+          Already registered? <AuthLink to="/login">Sign in</AuthLink>
+        </>
+      }
+    >
+      <form onSubmit={submit}>
+        {error && <div className="alert alert-error">{error}</div>}
+
+        <div className="field">
+          <label htmlFor="name">Your name</label>
+          <input
+            id="name"
+            className="input"
+            placeholder="Full name"
+            value={form.name}
+            onChange={set('name')}
+            required
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="shopName">Shop name</label>
+          <input
+            id="shopName"
+            className="input"
+            placeholder="The name customers see"
+            value={form.shopName}
+            onChange={set('shopName')}
+            required
+          />
+          <p className="auth-aside-note" style={{ marginTop: 8 }}>
+            We use this to match you to the right shop before granting access.
           </p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm font-medium text-center">
-            {error}
-          </div>
-        )}
+        <div className="field">
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            className="input"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={form.email}
+            onChange={set('email')}
+            required
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-1">
-            <label className="form-label text-sm">Full Name</label>
+        <div className="field">
+          <label htmlFor="phone">Phone</label>
+          <input
+            id="phone"
+            className="input"
+            inputMode="numeric"
+            maxLength={10}
+            placeholder="10-digit number"
+            value={form.phone}
+            onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/\D/g, '') }))}
+            required
+          />
+        </div>
+
+        <div className="auth-row">
+          <div className="field">
+            <label htmlFor="password">Password</label>
             <input
-              type="text"
-              className="form-input bg-gray-50 focus:bg-white transition-colors"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="John Doe"
+              id="password"
+              className="input"
+              type="password"
+              autoComplete="new-password"
+              placeholder="At least 6 characters"
+              value={form.password}
+              onChange={set('password')}
               required
             />
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className="form-label text-sm">Email Address</label>
-              <input
-                type="email"
-                className="form-input bg-gray-50 focus:bg-white transition-colors"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="owner@example.com"
-                required
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="form-label text-sm">Phone Number</label>
-              <input
-                type="tel"
-                className="form-input bg-gray-50 focus:bg-white transition-colors"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="1234567890"
-                required
-              />
-            </div>
+          <div className="field">
+            <label htmlFor="confirm">Confirm</label>
+            <input
+              id="confirm"
+              className="input"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Repeat it"
+              value={form.confirm}
+              onChange={set('confirm')}
+              required
+            />
           </div>
-
-          <div className="space-y-1">
-            <label className="form-label text-sm">
-              Select Your Shop{' '}
-              <span className="text-gray-400 font-normal">(if already listed)</span>
-            </label>
-            <select
-              className="form-input bg-gray-50 focus:bg-white transition-colors cursor-pointer"
-              value={formData.shopId}
-              onChange={(e) => setFormData({ ...formData, shopId: e.target.value })}
-            >
-              <option value="">-- Select an available shop --</option>
-              {availableShops.map((shop) => (
-                <option key={shop._id} value={shop._id}>
-                  {shop.name} ({shop.address.city})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className="form-label text-sm">Password</label>
-              <input
-                type="password"
-                className="form-input bg-gray-50 focus:bg-white transition-colors"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="••••••••"
-                required
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="form-label text-sm">Confirm Password</label>
-              <input
-                type="password"
-                className="form-input bg-gray-50 focus:bg-white transition-colors"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                placeholder="••••••••"
-                required
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary w-full py-3 text-lg mt-4 shadow-lg hover:shadow-xl"
-            disabled={loading}
-          >
-            {loading ? 'Creating Account...' : 'Register'}
-          </button>
-        </form>
-
-        <div className="mt-8 pt-6 border-t border-gray-100 text-center text-sm font-medium text-gray-500">
-          Already have an account?{' '}
-          <Link to="/login" className="text-primary-600 hover:text-primary-800 transition-colors">
-            Log in here
-          </Link>
         </div>
-      </div>
-    </div>
+
+        <button className="btn btn-primary btn-wide" type="submit" disabled={busy}>
+          {busy ? 'Creating your account...' : 'Create account'}
+        </button>
+      </form>
+    </AuthLayout>
   );
 };
 

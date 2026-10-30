@@ -1,0 +1,485 @@
+/* ===========================================================================
+   Partner portal design system.
+
+   Dark aurora ground, frosted glass surfaces, a single skewed accent motif.
+   Everything here is tokenised so a page never hard-codes a colour.
+   =========================================================================== */
+
+:root {
+  /* ground */
+  --bg-0: #070b1a;
+  --bg-1: #0d1326;
+  --surface: rgba(255, 255, 255, 0.055);
+  --surface-strong: rgba(255, 255, 255, 0.09);
+  --edge: rgba(255, 255, 255, 0.11);
+  --edge-bright: rgba(255, 255, 255, 0.2);
+
+  /* ink */
+  --ink: #f1f5fb;
+  --ink-dim: #9aa6c4;
+  --ink-faint: #64718f;
+
+  /* accents */
+  --accent: #6d8bff;
+  --accent-2: #b16cff;
+  --mint: #2fd8a4;
+  --amber: #ffb648;
+  --rose: #ff6b8a;
+
+  --grad-accent: linear-gradient(118deg, var(--accent) 0%, var(--accent-2) 100%);
+  --grad-mint: linear-gradient(118deg, #2fd8a4 0%, #4fe3c1 100%);
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-xl: 34px;
+
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-0);
+  color: var(--ink);
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* --------------------------------------------------------------- aurora */
+.aurora {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aurora span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.4;
+  animation: drift 26s var(--ease) infinite;
+}
+
+.aurora span:nth-child(1) {
+  width: 46vw;
+  height: 46vw;
+  background: #3b5bff;
+  top: -14%;
+  left: -8%;
+}
+
+.aurora span:nth-child(2) {
+  width: 38vw;
+  height: 38vw;
+  background: #a855f7;
+  bottom: -16%;
+  right: -6%;
+  animation-delay: -9s;
+}
+
+.aurora span:nth-child(3) {
+  width: 28vw;
+  height: 28vw;
+  background: #11b88a;
+  top: 42%;
+  left: 52%;
+  opacity: 0.22;
+  animation-delay: -17s;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(5vw, 7vh, 0) scale(1.14);
+  }
+  66% {
+    transform: translate3d(-4vw, -5vh, 0) scale(0.92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora span {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- glass */
+.glass {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Top highlight, the thing that makes glass read as glass. */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--edge-bright), transparent);
+  border-radius: inherit;
+}
+
+.glass-hover {
+  transition:
+    transform 0.4s var(--ease),
+    border-color 0.4s var(--ease),
+    background 0.4s var(--ease);
+}
+
+.glass-hover:hover {
+  transform: translateY(-3px);
+  border-color: var(--edge-bright);
+  background: var(--surface-strong);
+}
+
+/* ------------------------------------------------------------- the skew */
+/* One motif, used sparingly: a skewed slab behind headings and key numbers. */
+.skew-slab {
+  position: relative;
+  display: inline-block;
+  padding: 2px 14px;
+  isolation: isolate;
+}
+
+.skew-slab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--grad-accent);
+  transform: skewX(-11deg);
+  border-radius: 6px;
+  z-index: -1;
+  opacity: 0.9;
+}
+
+.skew-edge {
+  transform: skewY(-2deg);
+}
+
+.skew-edge > * {
+  transform: skewY(2deg);
+}
+
+/* ------------------------------------------------------------ typography */
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.display {
+  font-size: clamp(30px, 5vw, 48px);
+  line-height: 1.05;
+}
+
+.eyebrow {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.muted {
+  color: var(--ink-dim);
+}
+
+.numeral {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* --------------------------------------------------------------- inputs */
+.field {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-dim);
+  margin-bottom: 7px;
+}
+
+.input,
+select.input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-sm);
+  padding: 13px 15px;
+  color: var(--ink);
+  font-size: 15px;
+  font-family: inherit;
+  transition:
+    border-color 0.25s var(--ease),
+    box-shadow 0.25s var(--ease),
+    background 0.25s var(--ease);
+}
+
+.input::placeholder {
+  color: var(--ink-faint);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(109, 139, 255, 0.16);
+}
+
+select.input option {
+  background: var(--bg-1);
+  color: var(--ink);
+}
+
+/* -------------------------------------------------------------- buttons */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  padding: 13px 24px;
+  font-size: 14.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.25s var(--ease),
+    filter 0.25s var(--ease),
+    background 0.25s var(--ease);
+}
+
+.btn:active {
+  transform: scale(0.985);
+}
+
+.btn-primary {
+  background: var(--grad-accent);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(109, 139, 255, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* Sheen sweep on hover. */
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  transform: skewX(-22deg);
+  transition: left 0.65s var(--ease);
+}
+
+.btn-primary:hover:not(:disabled)::after {
+  left: 150%;
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--edge);
+  color: var(--ink);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--edge-bright);
+}
+
+.btn-danger {
+  background: rgba(255, 107, 138, 0.12);
+  border-color: rgba(255, 107, 138, 0.35);
+  color: var(--rose);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(255, 107, 138, 0.2);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-wide {
+  width: 100%;
+}
+
+/* --------------------------------------------------------------- alerts */
+.alert {
+  border-radius: var(--r-sm);
+  padding: 13px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  border: 1px solid;
+}
+
+.alert-error {
+  background: rgba(255, 107, 138, 0.1);
+  border-color: rgba(255, 107, 138, 0.3);
+  color: #ffb3c2;
+}
+
+.alert-ok {
+  background: rgba(47, 216, 164, 0.1);
+  border-color: rgba(47, 216, 164, 0.3);
+  color: #8df0cd;
+}
+
+.alert-info {
+  background: rgba(109, 139, 255, 0.1);
+  border-color: rgba(109, 139, 255, 0.3);
+  color: #bcc9ff;
+}
+
+/* --------------------------------------------------------------- badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink-dim);
+  border: 1px solid var(--edge);
+}
+
+.badge-ok {
+  background: rgba(47, 216, 164, 0.14);
+  color: var(--mint);
+  border-color: rgba(47, 216, 164, 0.3);
+}
+
+.badge-warn {
+  background: rgba(255, 182, 72, 0.14);
+  color: var(--amber);
+  border-color: rgba(255, 182, 72, 0.3);
+}
+
+.badge-bad {
+  background: rgba(255, 107, 138, 0.14);
+  color: var(--rose);
+  border-color: rgba(255, 107, 138, 0.3);
+}
+
+/* -------------------------------------------------------------- spinner */
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 2.5px solid rgba(255, 255, 255, 0.12);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.center-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--ink-dim);
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------- layout */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 22px 80px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.spread {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 18px 14px 72px;
+  }
+}
