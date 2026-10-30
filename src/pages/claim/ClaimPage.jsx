@@ -20,11 +20,13 @@ const ClaimPage = () => {
 
   const [code, setCode] = useState('');
   const [shopName, setShopName] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
   const applied = Boolean(status?.applied);
   const codeIssued = Boolean(status?.codeIssued);
+  const needsPhone = Boolean(status?.needsPhone);
 
   // Keep the field in the shape codes are issued in: XXXX-XXXX.
   const onCodeChange = (e) => {
@@ -37,7 +39,7 @@ const ClaimPage = () => {
     setError('');
     setBusy(true);
     try {
-      await api.post('/shop-owner/apply', { shopName });
+      await api.post('/shop-owner/apply', { shopName, phone });
       await refresh();
     } catch (err) {
       setError(err.response?.data?.message || 'Could not send your request.');
@@ -105,7 +107,32 @@ const ClaimPage = () => {
             />
           </div>
 
-          <button className="btn btn-primary btn-wide" type="submit" disabled={busy || !shopName.trim()}>
+          {/* Only asked for when we have no usable number on the account -
+              typically a Google sign-in, which never gave us one. */}
+          {needsPhone && (
+            <div className="field">
+              <label htmlFor="phone">Phone number</label>
+              <input
+                id="phone"
+                className="input"
+                inputMode="numeric"
+                maxLength={10}
+                placeholder="10-digit number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                required
+              />
+              <p className="auth-aside-note" style={{ marginTop: 8 }}>
+                We have no number on your account. This is how we reach you about orders.
+              </p>
+            </div>
+          )}
+
+          <button
+            className="btn btn-primary btn-wide"
+            type="submit"
+            disabled={busy || !shopName.trim() || (needsPhone && phone.length !== 10)}
+          >
             {busy ? 'Sending...' : 'Request access'}
           </button>
         </form>
