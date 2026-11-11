@@ -28,57 +28,6 @@
   max-width: 440px;
 }
 
-/* --------------------------------------------------------------- toggle */
-.toggle {
-  width: 54px;
-  height: 30px;
-  flex-shrink: 0;
-  border-radius: 999px;
-  border: 1px solid var(--edge);
-  background: rgba(255, 255, 255, 0.06);
-  cursor: pointer;
-  padding: 3px;
-  display: flex;
-  align-items: center;
-  transition:
-    background 0.3s var(--ease),
-    border-color 0.3s var(--ease);
-}
-
-.toggle span {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--ink-faint);
-  transition:
-    transform 0.3s var(--ease),
-    background 0.3s var(--ease);
-}
-
-.toggle.on {
-  background: rgba(47, 216, 164, 0.2);
-  border-color: rgba(47, 216, 164, 0.45);
-}
-
-.toggle.on span {
-  transform: translateX(24px);
-  background: var(--mint);
-}
-
-.toggle.small {
-  width: 46px;
-  height: 26px;
-}
-
-.toggle.small span {
-  width: 18px;
-  height: 18px;
-}
-
-.toggle.small.on span {
-  transform: translateX(20px);
-}
-
 /* ------------------------------------------------------------- day rows */
 .day-list {
   display: flex;

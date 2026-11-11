@@ -1,0 +1,255 @@
+/* ------------------------------------------------------------- stat row */
+.menu-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.menu-stat {
+  padding: 16px 20px;
+}
+
+.menu-stat strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* -------------------------------------------------------------- toolbar */
+.menu-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+}
+
+.menu-search {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.menu-filter {
+  flex: 0 1 190px;
+}
+
+.menu-removed {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--ink-dim);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.menu-removed input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------- add/edit forms */
+.menu-card {
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.menu-new {
+  border-left: 3px solid var(--accent);
+}
+
+.menu-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 14px;
+}
+
+.menu-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.menu-field-wide {
+  grid-column: 1 / -1;
+}
+
+.menu-form-grid textarea.input {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+  line-height: 1.55;
+}
+
+.menu-card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+/* ---------------------------------------------------------- item groups */
+.menu-group {
+  margin-bottom: 26px;
+}
+
+.menu-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--edge);
+}
+
+.menu-group-head h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.menu-group-head span {
+  font-size: 12.5px;
+}
+
+.menu-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* ------------------------------------------------------------ item rows */
+.menu-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 20px;
+  transition: opacity 0.3s var(--ease);
+}
+
+.menu-row.unavailable {
+  opacity: 0.68;
+  border-left: 3px solid var(--amber);
+}
+
+.menu-row.gone {
+  opacity: 0.5;
+  border-left: 3px solid var(--rose);
+}
+
+/* An expanded editor takes the whole row. */
+.menu-row:has(.menu-edit) {
+  grid-template-columns: 1fr;
+}
+
+.menu-edit {
+  grid-column: 1 / -1;
+}
+
+.menu-row-main {
+  min-width: 0;
+}
+
+.menu-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.menu-row-head strong {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.menu-desc {
+  margin: 5px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: 62ch;
+}
+
+.menu-meta {
+  margin: 5px 0 0;
+  font-size: 12px;
+}
+
+.menu-row-price {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.menu-row-price strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.menu-was {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
+.menu-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.menu-row-actions .btn {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------ empty box */
+.menu-empty {
+  padding: 34px 28px;
+  text-align: center;
+}
+
+.menu-empty strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+
+.menu-empty p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* ----------------------------------------------------------- small view */
+@media (max-width: 720px) {
+  .menu-row {
+    grid-template-columns: 1fr auto;
+    row-gap: 12px;
+  }
+
+  .menu-row-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .menu-toolbar .btn {
+    flex: 1 1 100%;
+  }
+}
