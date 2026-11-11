@@ -306,3 +306,22 @@
     width: 100%;
   }
 }
+
+/* A free item one of the shop's offers put on the order. */
+.order-items li.gift .oi-name {
+  color: var(--mint);
+}
+
+.oi-free {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  background: rgba(47, 216, 164, 0.16);
+  border: 1px solid rgba(47, 216, 164, 0.4);
+  color: var(--mint);
+  vertical-align: 1px;
+}

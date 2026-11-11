@@ -9,6 +9,7 @@ import ClaimPage from './pages/claim/ClaimPage';
 import Dashboard from './pages/dashboard/Dashboard';
 import OrdersPage from './pages/orders/OrdersPage';
 import MenuPage from './pages/menu/MenuPage';
+import OffersPage from './pages/offers/OffersPage';
 import TimingsPage from './pages/settings/TimingsPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import Shell, { Aurora } from './components/Shell';
@@ -106,6 +107,14 @@ const AppRoutes = () => (
       element={
         <Protected>
           <MenuPage />
+        </Protected>
+      }
+    />
+    <Route
+      path="/offers"
+      element={
+        <Protected>
+          <OffersPage />
         </Protected>
       }
     />

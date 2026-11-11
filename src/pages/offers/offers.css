@@ -1,0 +1,243 @@
+.offer-bar {
+  margin: 4px 0 14px;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------ the form */
+.offer-form {
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  border-left: 3px solid var(--accent);
+}
+
+.offer-form-title {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.offer-form-top {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 680px) {
+  .offer-form-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------- the two modes */
+.offer-modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 11px;
+  margin: 18px 0;
+}
+
+.offer-mode {
+  text-align: left;
+  padding: 13px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--edge);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.25s var(--ease),
+    background 0.25s var(--ease);
+}
+
+.offer-mode:hover {
+  border-color: var(--edge-bright);
+}
+
+.offer-mode.on {
+  border-color: var(--accent);
+  background: rgba(124, 92, 255, 0.12);
+}
+
+.offer-mode strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.offer-mode span {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+/* ------------------------------------------------------- the item picker */
+.offer-picker-head {
+  margin-bottom: 9px;
+  align-items: baseline;
+}
+
+.offer-picker-head strong {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.offer-picker-head span {
+  font-size: 12.5px;
+}
+
+.offer-need {
+  color: var(--amber);
+}
+
+.offer-item-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 11px;
+  max-height: 230px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.offer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--edge);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  cursor: pointer;
+  font-size: 13px;
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+
+.offer-chip:hover {
+  border-color: var(--edge-bright);
+}
+
+.offer-chip.on {
+  border-color: var(--mint);
+  background: rgba(47, 216, 164, 0.14);
+}
+
+.offer-chip-name {
+  font-weight: 650;
+}
+
+.offer-chip-price {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.offer-form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* ------------------------------------------------------------ offer rows */
+.offer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.offer-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 20px;
+  transition: opacity 0.3s var(--ease);
+}
+
+.offer-row.off {
+  opacity: 0.6;
+  border-left: 3px solid var(--edge);
+}
+
+.offer-row.broken {
+  border-left: 3px solid var(--amber);
+}
+
+.offer-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 7px;
+}
+
+.offer-row-head strong {
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.offer-rule {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+  max-width: 64ch;
+}
+
+.offer-rule strong {
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.offer-meta {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+
+.offer-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.offer-row-actions .btn {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------- empty box */
+.offer-empty {
+  padding: 34px 28px;
+  text-align: center;
+}
+
+.offer-empty strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+
+.offer-empty p {
+  margin: 0 auto;
+  max-width: 48ch;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .offer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .offer-row-actions {
+    justify-content: flex-start;
+  }
+}

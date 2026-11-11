@@ -217,9 +217,14 @@ const OrdersPage = () => {
 
                         <ul className="order-items">
                           {o.items.map((it, k) => (
-                            <li key={k} className={it.unavailable ? 'gone' : ''}>
+                            <li
+                              key={k}
+                              className={`${it.unavailable ? 'gone' : ''} ${it.isGift ? 'gift' : ''}`}
+                            >
                               <span className="oi-name">
                                 {it.name}
+                                {/* A free item one of your offers added. Pack it with the order. */}
+                                {it.isGift && <span className="oi-free">FREE</span>}
                                 {it.unavailable && <em> — unavailable</em>}
                               </span>
                               <span className="oi-qty numeral">

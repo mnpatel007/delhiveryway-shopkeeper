@@ -16,6 +16,7 @@ const NAV = [
   { to: '/dashboard', label: 'Overview', icon: '◈' },
   { to: '/orders', label: 'Orders', icon: '▤' },
   { to: '/menu', label: 'Menu', icon: '▦' },
+  { to: '/offers', label: 'Offers', icon: '✦' },
   { to: '/timings', label: 'Opening hours', icon: '◷' },
   { to: '/profile', label: 'Profile', icon: '◉' },
 ];
