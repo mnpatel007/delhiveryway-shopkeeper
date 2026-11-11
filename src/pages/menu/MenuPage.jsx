@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import { money } from '../../utils/format';
+import MenuPdfCard from './MenuPdfCard';
 import './menu.css';
 
 const UNIT_LABELS = {
@@ -361,6 +362,8 @@ const MenuPage = () => {
           <strong className="numeral">{categories.length}</strong>
         </div>
       </div>
+
+      <MenuPdfCard />
 
       {note && (
         <div className={`alert alert-${note.kind === 'ok' ? 'ok' : 'error'}`}>{note.text}</div>
