@@ -1,0 +1,83 @@
+.terms-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 20px;
+}
+
+.terms-card {
+  width: 100%;
+  max-width: 720px;
+  padding: 32px clamp(20px, 4vw, 38px);
+}
+
+.terms-head h1 {
+  margin: 6px 0 0;
+  font-size: clamp(21px, 3.4vw, 27px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.terms-version {
+  margin: 7px 0 0;
+  font-size: 12.5px;
+}
+
+/* The agreement itself scrolls inside the card, so the accept control stays
+   where the partner can see it on a short screen. */
+.terms-body {
+  margin: 22px 0;
+  max-height: min(46vh, 420px);
+  overflow-y: auto;
+  padding: 18px 20px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--edge);
+  background: rgba(0, 0, 0, 0.18);
+  font-size: 14px;
+  line-height: 1.68;
+  color: var(--ink-dim);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.terms-body:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.terms-body p {
+  margin: 0 0 13px;
+}
+
+.terms-body p:last-child {
+  margin-bottom: 0;
+}
+
+.terms-tick {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 4px 0 20px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  cursor: pointer;
+  user-select: none;
+}
+
+.terms-tick input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.terms-foot {
+  margin: 16px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}

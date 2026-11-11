@@ -13,6 +13,7 @@ import OffersPage from './pages/offers/OffersPage';
 import TimingsPage from './pages/settings/TimingsPage';
 import ProfilePage from './pages/profile/ProfilePage';
 import Shell, { Aurora } from './components/Shell';
+import TermsGate from './pages/terms/TermsGate';
 
 import './styles/theme.css';
 
@@ -38,7 +39,11 @@ const Protected = ({ children }) => {
   if (!user) return <Navigate to="/login" replace />;
   if (!linked) return <Navigate to="/claim" replace />;
 
-  return <Shell>{children}</Shell>;
+  return (
+    <TermsGate>
+      <Shell>{children}</Shell>
+    </TermsGate>
+  );
 };
 
 /** Signed in, but deliberately outside the shell — the claim gate. */
