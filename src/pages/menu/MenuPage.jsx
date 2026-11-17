@@ -32,7 +32,11 @@ const MenuPage = () => {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [units, setUnits] = useState(Object.keys(UNIT_LABELS));
-  const [counts, setCounts] = useState({ total: 0, live: 0, outOfStock: 0 });
+  const [counts, setCounts] = useState({ total: 0, live: 0, outOfStock: 0, awaitingApproval: 0 });
+  // New items and price changes are not ours to publish — they wait for
+  // DelhiveryWay to approve them, and a shop needs to see where each one got to.
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [recentDecisions, setRecentDecisions] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [note, setNote] = useState(null); // { kind, text }
@@ -59,7 +63,9 @@ const MenuPage = () => {
       setItems(data.items || []);
       setCategories(data.categories || []);
       if (data.units?.length) setUnits(data.units);
-      setCounts(data.counts || { total: 0, live: 0, outOfStock: 0 });
+      setCounts(data.counts || { total: 0, live: 0, outOfStock: 0, awaitingApproval: 0 });
+      setPendingRequests(data.pendingRequests || []);
+      setRecentDecisions(data.recentDecisions || []);
     } catch (err) {
       setNote({
         kind: 'error',
@@ -118,7 +124,10 @@ const MenuPage = () => {
         unit: draft.unit,
         discount: draft.discount === '' ? 0 : draft.discount,
       });
-      setNote({ kind: 'ok', text: res.data?.message || 'Item added.' });
+      setNote({
+        kind: res.data?.pendingApproval ? 'info' : 'ok',
+        text: res.data?.message || 'Item added.',
+      });
       setDraft(blankDraft());
       setAdding(false);
       await load(showRemoved);
@@ -155,8 +164,12 @@ const MenuPage = () => {
         discount: editDraft.discount === '' ? 0 : editDraft.discount,
       });
       if (res.data?.data) replaceItem(res.data.data);
-      setNote({ kind: 'ok', text: res.data?.message || 'Item updated.' });
+      setNote({
+        kind: res.data?.priceAwaitingApproval ? 'info' : 'ok',
+        text: res.data?.message || 'Item updated.',
+      });
       setEditingId(null);
+      if (res.data?.priceAwaitingApproval) await load(showRemoved);
       setCategories((list) => {
         const next = editDraft.category.trim();
         return next && !list.includes(next) ? [...list, next].sort() : list;
@@ -180,6 +193,27 @@ const MenuPage = () => {
       }));
     } catch (err) {
       setNote({ kind: 'error', text: err.response?.data?.message || 'Could not update that item.' });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  /** The price change held for this item, if there is one. */
+  const pendingFor = (productId) =>
+    pendingRequests.find(
+      (request) => request.type === 'price' && String(request.productId) === String(productId)
+    );
+
+  const withdraw = async (request) => {
+    setBusyId(request._id);
+    setNote(null);
+    try {
+      await api.delete(`/shop-owner/menu-requests/${request._id}`);
+      setPendingRequests((list) => list.filter((row) => row._id !== request._id));
+      setCounts((c) => ({ ...c, awaitingApproval: Math.max(0, c.awaitingApproval - 1) }));
+      setNote({ kind: 'ok', text: 'Request withdrawn.' });
+    } catch (err) {
+      setNote({ kind: 'error', text: err.response?.data?.message || 'Could not withdraw that.' });
     } finally {
       setBusyId(null);
     }
@@ -343,8 +377,10 @@ const MenuPage = () => {
           Menu
         </h1>
         <p className="muted" style={{ marginTop: 8, maxWidth: 580, lineHeight: 1.6 }}>
-          Add items, change prices and mark things unavailable. Everything here applies to your
-          shop only, and customers see it straight away.
+          Everything here applies to your shop only. Names, descriptions, availability and
+          taking something off the menu change straight away. A new item or a price change is
+          sent to DelhiveryWay first, and the item keeps selling at its current price until
+          that is approved.
         </p>
       </div>
 
@@ -357,9 +393,9 @@ const MenuPage = () => {
           <span className="eyebrow">Marked unavailable</span>
           <strong className="numeral">{counts.outOfStock}</strong>
         </div>
-        <div className="glass menu-stat">
-          <span className="eyebrow">Categories</span>
-          <strong className="numeral">{categories.length}</strong>
+        <div className={`glass menu-stat ${counts.awaitingApproval ? 'waiting' : ''}`}>
+          <span className="eyebrow">Awaiting approval</span>
+          <strong className="numeral">{counts.awaitingApproval || 0}</strong>
         </div>
       </div>
 
@@ -367,6 +403,54 @@ const MenuPage = () => {
 
       {note && (
         <div className={`alert alert-${note.kind === 'ok' ? 'ok' : 'error'}`}>{note.text}</div>
+      )}
+
+      {pendingRequests.length > 0 && (
+        <div className="glass menu-waiting">
+          <h3>Waiting for approval</h3>
+          <ul>
+            {pendingRequests.map((request) => (
+              <li key={request._id}>
+                <div className="menu-waiting-main">
+                  <strong>{request.name}</strong>
+                  <span className="muted">
+                    {request.type === 'create'
+                      ? `New item at ${money(request.proposedPrice)} — it goes on your menu once approved.`
+                      : `Price change ${money(request.currentPrice)} \u2192 ${money(
+                          request.proposedPrice
+                        )} — customers pay ${money(request.currentPrice)} until then.`}
+                  </span>
+                </div>
+                <button
+                  className="btn btn-ghost"
+                  onClick={() => withdraw(request)}
+                  disabled={busyId === request._id}
+                >
+                  Withdraw
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {recentDecisions.filter((d) => d.status === 'rejected').length > 0 && (
+        <div className="glass menu-rejected">
+          <h3>Not approved</h3>
+          <ul>
+            {recentDecisions
+              .filter((d) => d.status === 'rejected')
+              .map((decision) => (
+                <li key={decision._id}>
+                  <strong>{decision.name}</strong>
+                  {decision.type === 'price' && (
+                    <span className="muted"> — {money(decision.proposedPrice)} was turned down</span>
+                  )}
+                  {decision.reviewNote && <p className="menu-rejected-why">{decision.reviewNote}</p>}
+                </li>
+              ))}
+          </ul>
+        </div>
       )}
 
       <div className="menu-toolbar glass">
@@ -505,6 +589,11 @@ const MenuPage = () => {
                             )}
                             {item.discount > 0 && (
                               <span className="badge badge-ok">{item.discount}% off</span>
+                            )}
+                            {pendingFor(item._id) && (
+                              <span className="badge badge-warn">
+                                {money(pendingFor(item._id).proposedPrice)} awaiting approval
+                              </span>
                             )}
                           </div>
                           {item.description && <p className="menu-desc">{item.description}</p>}
